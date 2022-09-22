@@ -4,7 +4,7 @@ services:
 
   app:
     build:
-      context: node
+      context: ./node
     container_name: app
     networks:
       - node-network
@@ -15,8 +15,21 @@ services:
     tty: true
     depends_on:
       db:
-        condition: service_healthy
-      
+        condition: service_healthy      
+
+  nginx:
+    build: 
+      context: ./nginx
+    container_name: nginx
+    networks:
+      - node-network
+    volumes:
+      - ./node:/usr/src/app
+    ports:
+      - 8080:80
+    tty: true    
+    depends_on:
+      - app
 
   db:
     image: mysql:5.7
@@ -37,8 +50,7 @@ services:
       test: ["CMD", "mysqladmin", "-uroot", "-p$MYSQL_ROOT_PASSWORD",  "ping", "-h", "localhost"]
       interval: 1s
       timeout: 3s
-      retries: 9
-    
+      retries: 9    
 
 networks:
   node-network:
