@@ -1,4 +1,5 @@
 const express = require('express')
+const mysql = require('mysql')
 const app = express()
 const port = 3000
 const config = {
@@ -7,30 +8,31 @@ const config = {
     password: 'root',
     database: 'nodedb'
 };
-//inserindo dados no banco.
-const mysql = require('mysql')
-const connection = mysql.createConnection(config)
-const incluirDados = `INSERT INTO people(name) values('Zé')`
-connection.query(incluirDados)
-
-let body = '<p> <h1>Full Cycle Rocks!</h1> </p><br><p>'
-
-connection.query('SELECT name FROM people', function (err, rows) {
-    if (!err && rows.length > 0) { 
-        for(let i=0; i<rows.length; i++) {
-        body = body+String(rows[i].name)+'<br>'
-        }
-    } else {
-        res.send([]);
-    }
-    body = body+'</p><br>'
-    
-});
-connection.end
 
 app.get('/', (req, res) => {    
+
+    let body = '<p> <h1>Full Cycle Rocks!</h1> </p><br><p>'
+    //inserindo dados no banco.
+    const connection = mysql.createConnection(config)
+    const incluirDados = `INSERT INTO people(name) values('José'),('Renato'),('Fagundes')`;
+    connection.query(incluirDados)
     
-    return res.send( body )    
+    //Consultando dados do banco de dados
+    connection.query('SELECT name FROM people', function (err, rows) {        
+        if (!err && rows.length > 0) {     
+                    
+            for(let i=0; i<rows.length; i++) {
+            body = body+String(rows[i].name)+'<br>'
+            
+            }
+        } else {
+            res.send([]);
+        }
+        body = body + '</p><br>'
+        res.send( body )
+        
+    });
+    connection.end       
 })
 
 app.listen(port, () => {
